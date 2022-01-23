@@ -1,0 +1,21 @@
+h3 {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  text-transform: capitalize;
+  &::before {
+    content: '';
+    align-self: center;
+    border-top: 1px solid gray;
+  }
+  &::after {
+    content: '';
+    align-self: center;
+    border-top: 1px solid gray;
+  }
+}
+.button-player-select {
+  &:hover {
+    color: cornflowerblue;
+  }
+}

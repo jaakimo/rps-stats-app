@@ -4,24 +4,33 @@
   "private": true,
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.1",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
-    "@types/jest": "^24.9.1",
-    "@types/node": "^12.20.41",
-    "@types/react": "^16.14.21",
-    "@types/react-dom": "^16.9.14",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.4.0",
+    "@types/node": "^17.0.8",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
     "@types/react-redux": "^7.1.21",
     "axios": "^0.24.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
     "react": "^17.0.2",
+    "react-bootstrap": "^2.1.1",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.6",
     "react-scripts": "5.0.0",
-    "typescript": "~4.1.5",
-    "uuid": "^8.3.2"
+    "request": "^2.88.2",
+    "socket.io": "^4.4.1",
+    "socket.io-client": "^4.4.1",
+    "typescript": "~4.5.4",
+    "uuid": "^8.3.2",
+    "websocket": "^1.0.34"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts start & yarn start:pipe",
+    "start:pipe": "node ./local-api-pipe/server.js",
+    "api:dev": "nodemon ./local-api-pipe/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -43,6 +52,12 @@
     ]
   },
   "devDependencies": {
-    "@types/uuid": "^8.3.4"
-  }
+    "@types/react-bootstrap": "^0.32.29",
+    "@types/request": "^2.48.8",
+    "@types/socket.io-client": "^3.0.0",
+    "@types/uuid": "^8.3.4",
+    "nodemon": "^2.0.15",
+    "sass": "^1.47.0"
+  },
+  "proxy": "http://localhost:3001"
 }

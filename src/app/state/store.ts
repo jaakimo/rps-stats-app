@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import resultsSlice from './resultSlice';
+import resultSlice from './resultSlice';
 import playerSlice from './playerSlice';
 
 export const store = configureStore({
   reducer: {
-    resultsReducer: resultsSlice,
+    resultReducer: resultSlice,
     playerReducer: playerSlice,
   },
 });

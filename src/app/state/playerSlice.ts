@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GameResultFromApi } from './resultSlice';
+import { winningPlayer } from '../../utils/functions';
+import { GameResultFromApi, Player } from './resultSlice';
 
 interface HandsPlayed {
   ROCK: number;
@@ -14,16 +15,10 @@ export interface PlayerStats {
   handsPlayed: HandsPlayed;
 }
 
-// Name as an id isn't optimal. Both API and this should be utilize uuid or other.
+// Name as an id isn't optimal. Both API could utilize uuid or other.
 export interface PlayerStatsState {
   [name: string]: PlayerStats;
 }
-
-const firstWinning = [
-  ['ROCK', 'SCISSORS'],
-  ['PAPER', 'ROCK'],
-  ['SCISSORS', 'PAPER'],
-];
 
 const initialState: PlayerStatsState = {};
 
@@ -32,126 +27,94 @@ const playerSlice = createSlice({
   initialState,
   reducers: {
     initialize: (state, action: PayloadAction<GameResultFromApi[]>) => {
-      action.payload.forEach(({ playerA, playerB }) => {
-        if (!state[playerA.name]) {
-          state[playerA.name] = {
-            name: playerA.name,
-            handsPlayed: { ROCK: 0, PAPER: 0, SCISSORS: 0 },
-            gamesAttended: [],
-            winRatio: undefined,
-          };
-        }
-
-        if (!state[playerB.name]) {
-          state[playerB.name] = {
-            name: playerB.name,
-            handsPlayed: { ROCK: 0, PAPER: 0, SCISSORS: 0 },
-            gamesAttended: [],
-            winRatio: undefined,
-          };
-        }
-      });
-
-      action.payload.forEach(({ playerA, playerB, gameId }) => {
-        // Even match
-        if (playerA.played !== playerB.played) {
-          [playerA, playerB].forEach((player) => {
-            state[player.name].winRatio =
-              (0.5 +
-                state[player.name].gamesAttended.length *
-                  (state[player.name].winRatio || 1)) /
-              (state[player.name].gamesAttended.length + 1);
-          });
-        } else {
-          if (firstWinning.includes([playerA.played, playerB.played])) {
-            state[playerA.name].winRatio =
-              (1 +
-                state[playerA.name].gamesAttended.length *
-                  (state[playerA.name].winRatio || 1)) /
-              (state[playerA.name].gamesAttended.length + 1);
-            state[playerB.name].winRatio =
-              (0 +
-                state[playerB.name].gamesAttended.length *
-                  (state[playerB.name].winRatio || 1)) /
-              (state[playerB.name].gamesAttended.length + 1);
-          } else {
-            state[playerA.name].winRatio =
-              (0 +
-                state[playerA.name].gamesAttended.length *
-                  (state[playerA.name].winRatio || 1)) /
-              (state[playerA.name].gamesAttended.length + 1);
-            state[playerB.name].winRatio =
-              (1 +
-                state[playerB.name].gamesAttended.length *
-                  (state[playerB.name].winRatio || 1)) /
-              (state[playerB.name].gamesAttended.length + 1);
-          }
-        }
-
-        [playerA, playerB].forEach((player) => {
-          state[player.name].gamesAttended.push(gameId);
-          if (player.played === 'ROCK')
-            state[player.name].handsPlayed.ROCK += 1;
-          else if (player.played === 'PAPER')
-            state[player.name].handsPlayed.PAPER += 1;
-          else state[player.name].handsPlayed.SCISSORS += 1;
-        });
+      action.payload.forEach((payload) => {
+        updateStats(state, payload);
       });
     },
 
-    /** UPDATE player
-     *
-     */
-    addResult: (state, action: PayloadAction<GameResultFromApi>) => {
-      const { gameId, playerA, playerB } = action.payload;
-      // match was a tie
-      if (playerA.played !== playerB.played) {
-        [playerA, playerB].forEach((player) => {
-          state[player.name].winRatio =
-            (0.5 +
-              state[player.name].gamesAttended.length *
-                (state[player.name].winRatio || 1)) /
-            (state[player.name].gamesAttended.length + 1);
-        });
-      }
-      // not tie..
-      else {
-        if (firstWinning.includes([playerA.played, playerB.played])) {
-          state[playerA.name].winRatio =
-            (1 +
-              state[playerA.name].gamesAttended.length *
-                (state[playerA.name].winRatio || 1)) /
-            (state[playerA.name].gamesAttended.length + 1);
-          state[playerB.name].winRatio =
-            (0 +
-              state[playerB.name].gamesAttended.length *
-                (state[playerB.name].winRatio || 1)) /
-            (state[playerB.name].gamesAttended.length + 1);
-        } else {
-          state[playerA.name].winRatio =
-            (0 +
-              state[playerA.name].gamesAttended.length *
-                (state[playerA.name].winRatio || 1)) /
-            (state[playerA.name].gamesAttended.length + 1);
-          state[playerB.name].winRatio =
-            (1 +
-              state[playerB.name].gamesAttended.length *
-                (state[playerB.name].winRatio || 1)) /
-            (state[playerB.name].gamesAttended.length + 1);
-        }
-      }
-      // UPDATE gamesAttended and handsplayed
-      [playerA, playerB].forEach((player) => {
-        state[player.name].gamesAttended.push(gameId);
-
-        if (player.played === 'ROCK') state[player.name].handsPlayed.ROCK += 1;
-        else if (player.played === 'PAPER')
-          state[player.name].handsPlayed.PAPER += 1;
-        else state[player.name].handsPlayed.SCISSORS += 1;
-      });
+    updatePlayerStats: (state, action: { payload: GameResultFromApi }) => {
+      updateStats(state, action.payload);
     },
   },
 });
 
-export const { addResult, initialize } = playerSlice.actions;
+const updateStats = (state: PlayerStatsState, payload: GameResultFromApi) => {
+  // initialize player stats if players do not exist yet
+  if (!state[payload.playerA.name]) {
+    state[payload.playerA.name] = {
+      name: payload.playerA.name,
+      handsPlayed: { ROCK: 0, PAPER: 0, SCISSORS: 0 },
+      gamesAttended: [],
+      winRatio: undefined,
+    };
+  }
+  if (!state[payload.playerB.name]) {
+    state[payload.playerB.name] = {
+      name: payload.playerB.name,
+      handsPlayed: { ROCK: 0, PAPER: 0, SCISSORS: 0 },
+      gamesAttended: [],
+      winRatio: undefined,
+    };
+  }
+  /**
+   *
+   * @param newValue match result win -> 1 lose -> 0 tie - 0.5
+   * @param n number of matches played
+   * @param average average before new result
+   * @returns
+   */
+  const getNewMovingAverage = (
+    newValue: number,
+    n: number,
+    average?: number,
+  ): number => {
+    return (newValue + n * (average || 1)) / (n + 1);
+  };
+
+  const winner = winningPlayer(payload.playerA, payload.playerB);
+  // TIE
+  if (!winner) {
+    [payload.playerA, payload.playerB].forEach((player) => {
+      state[player.name].winRatio = getNewMovingAverage(
+        0.5,
+        state[player.name].gamesAttended.length,
+        state[player.name].winRatio,
+      );
+    });
+  }
+  // NOT TIE
+  else if (winner === 'A') {
+    state[payload.playerA.name].winRatio = getNewMovingAverage(
+      1,
+      state[payload.playerA.name].gamesAttended.length,
+      state[payload.playerA.name].winRatio,
+    );
+    state[payload.playerB.name].winRatio = getNewMovingAverage(
+      0,
+      state[payload.playerA.name].gamesAttended.length,
+      state[payload.playerA.name].winRatio,
+    );
+  } else {
+    state[payload.playerA.name].winRatio = getNewMovingAverage(
+      0,
+      state[payload.playerA.name].gamesAttended.length,
+      state[payload.playerA.name].winRatio,
+    );
+    state[payload.playerB.name].winRatio = getNewMovingAverage(
+      1,
+      state[payload.playerA.name].gamesAttended.length,
+      state[payload.playerA.name].winRatio,
+    );
+  }
+  // update played hands
+  [payload.playerA, payload.playerB].forEach((player) => {
+    state[player.name].gamesAttended.push(payload.gameId);
+    if (player.played === 'ROCK') state[player.name].handsPlayed.ROCK += 1;
+    else if (player.played === 'PAPER')
+      state[player.name].handsPlayed.PAPER += 1;
+    else state[player.name].handsPlayed.SCISSORS += 1;
+  });
+};
+
+export const { updatePlayerStats, initialize } = playerSlice.actions;
 export default playerSlice.reducer;

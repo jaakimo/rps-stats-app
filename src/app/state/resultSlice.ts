@@ -1,18 +1,26 @@
 /* eslint-disable no-param-reassign */
 import { createSlice } from '@reduxjs/toolkit';
+import { winningPlayer } from '../../utils/functions';
 
 export interface Player {
   name: string;
   played: string;
 }
 
-export interface GameResults {
+export interface GameResult extends GameResultFromApi {
+  winner?: 'A' | 'B';
+}
+
+export interface GameInProgress {
   [id: string]: {
     t: number;
-    type: string;
     playerA: Player;
     playerB: Player;
   };
+}
+export interface GameResults {
+  completed: GameResult[];
+  inProgress: GameInProgress;
 }
 
 export interface GameResultFromApi {
@@ -22,36 +30,39 @@ export interface GameResultFromApi {
   playerA: Player;
   playerB: Player;
 }
-const initialState: GameResults = {};
 
-const gamesSlice = createSlice({
-  name: 'games',
+const initialState: GameResults = { completed: [], inProgress: {} };
+
+const resultSlice = createSlice({
+  name: 'results',
   initialState,
   reducers: {
-    initialize: (state, { payload }: { payload: GameResultFromApi[] }) => {
-      return payload.reduce((memo, game) => {
-        return {
-          ...memo,
-          [game.gameId]: {
-            t: game.t,
-            type: game.type,
-            playerA: game.playerA,
-            playerB: game.playerB,
-          },
-        };
-      }, {});
+    initialize: (state, action: { payload: GameResultFromApi[] }) => {
+      state.completed = action.payload
+        .map((game) => ({
+          ...game,
+          winner: winningPlayer(game.playerA, game.playerB),
+        }))
+        .sort((a, b) => a.t - b.t);
     },
 
-    add: (state, { payload }: { payload: GameResultFromApi }) => {
-      state[payload.gameId] = {
-        t: payload.t,
-        type: payload.type,
-        playerA: payload.playerA,
-        playerB: payload.playerB,
+    addResult: (state, action: { payload: GameResultFromApi }) => {
+      if (state.inProgress[action.payload.gameId])
+        delete state.inProgress[action.payload.gameId];
+      state.completed.push({
+        ...action.payload,
+        winner: winningPlayer(action.payload.playerA, action.payload.playerB),
+      });
+    },
+    addGameInProgress: (state, action: { payload: GameResultFromApi }) => {
+      state.inProgress[action.payload.gameId] = {
+        playerA: action.payload.playerA,
+        playerB: action.payload.playerB,
+        t: new Date().getTime(),
       };
     },
   },
 });
 
-export const { initialize } = gamesSlice.actions;
-export default gamesSlice.reducer;
+export const { initialize, addGameInProgress, addResult } = resultSlice.actions;
+export default resultSlice.reducer;
