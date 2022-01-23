@@ -1,3 +1,19 @@
+# rps-stats-app
+
+Reaktor Developer, summer 2022 pre-assignment.
+
+Front-end rock paper scissors application which utilizes API provided by Reaktor.
+
+Key tech:
+
+- React
+- Redux
+- Bootstrap
+
+Application preview ?ready? @ [heroku](https://rps-stats-app.herokuapp.com/)
+
+---
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
 
 ## Available Scripts
