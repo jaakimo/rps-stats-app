@@ -47,9 +47,12 @@ const PlayerStatsModal = ({
           <i
             className={`px-1 fas fa-hand-${mostPlayedHand[0].toLowerCase()} fa-2x`}
           />
-          -{' '}
-          {((mostPlayedHand[1] / player.gamesAttended.length) * 100).toFixed()}{' '}
-          %
+          -{' ('}
+          {(
+            (mostPlayedHand[1] / player.gamesAttended.length) *
+            100
+          ).toFixed()}{' '}
+          %)
         </p>
       </Modal.Body>
       <Modal.Footer>

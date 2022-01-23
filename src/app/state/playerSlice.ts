@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { winningPlayer } from '../../utils/functions';
-import { GameResultFromApi, Player } from './resultSlice';
+import { GameResultFromApi } from './resultSlice';
 
 interface HandsPlayed {
   ROCK: number;
