@@ -30,8 +30,10 @@ export const getTimeStringSince = (t: number): string => {
   timeSinceInSeconds -= 3600 * hours;
   const minutes = Math.floor(timeSinceInSeconds / 60);
   let result = '';
-  if (days > 0) result += `${days} days, `;
-  if (hours > 0) result += `${hours} hours, `;
-  if (minutes > 0) result += `${minutes} minutes ago.`;
-  return result || 'Just now';
+  if (days > 0) result += `${days} days `;
+  if (hours > 0) result += `${hours} hours `;
+  if (minutes > 0) result += `${minutes} minutes `;
+  if (result) {
+    return (result += 'ago. ');
+  } else return 'just now.';
 };
