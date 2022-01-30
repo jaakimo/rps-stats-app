@@ -15,16 +15,12 @@ function App() {
   useEffect(() => {
     (async () => {
       await import('./app/socketClient');
-    })();
-    axios
-      .get('https://rps-stats-api.herokuapp.com/api/rps/history')
-      .then(({ data }) => {
-        dispatch(initializeResults(data.data));
-        dispatch(initializePlayers(data.data));
-      })
-      .catch((err) =>
-        console.log('Error - could not connect to api: ', err.message),
+      const data = await axios.get(
+        'https://rps-stats-api.herokuapp.com/api/rps/history',
       );
+      dispatch(initializeResults(data.data));
+      dispatch(initializePlayers(data.data));
+    })();
   }, [dispatch]);
 
   return (
