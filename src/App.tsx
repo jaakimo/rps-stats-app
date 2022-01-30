@@ -17,7 +17,7 @@ function App() {
       await import('./app/socketClient');
     })();
     axios
-      .get('/rps/history')
+      .get('https://rps-stats-api.herokuapp.com/api/rps/history')
       .then(({ data }) => {
         dispatch(initializeResults(data.data));
         dispatch(initializePlayers(data.data));

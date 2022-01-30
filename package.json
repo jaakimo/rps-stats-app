@@ -28,7 +28,7 @@
     "websocket": "^1.0.34"
   },
   "scripts": {
-    "start": "react-scripts start & yarn start:pipe",
+    "start": "react-scripts start",
     "start:pipe": "node ./local-api-pipe/server.js",
     "api:dev": "nodemon ./local-api-pipe/server.js",
     "build": "react-scripts build",
@@ -58,6 +58,5 @@
     "@types/uuid": "^8.3.4",
     "nodemon": "^2.0.15",
     "sass": "^1.47.0"
-  },
-  "proxy": "http://localhost:3001"
+  }
 }
